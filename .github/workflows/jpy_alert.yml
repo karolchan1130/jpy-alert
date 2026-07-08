@@ -1,0 +1,30 @@
+name: JPY Rate Alert
+
+on:
+  schedule:
+    # 注意: cron 用 UTC 時間! 香港/日本 = UTC+8
+    # 香港 08:00 = UTC 00:00 ; 香港 21:00 = UTC 13:00
+    - cron: '0 0 * * *'
+    - cron: '0 13 * * *'
+  workflow_dispatch:   # 容許手動撳掣測試
+
+jobs:
+  send-alert:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run alert script
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          CHAT_ID: ${{ secrets.CHAT_ID }}
+        run: python jpy_alert.py
